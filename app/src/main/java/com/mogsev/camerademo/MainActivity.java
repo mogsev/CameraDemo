@@ -1,27 +1,46 @@
 package com.mogsev.camerademo;
 
+import android.app.LoaderManager;
 import android.content.Intent;
+import android.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.mogsev.camerademo.util.IceCreamLoader;
 
-public class MainActivity extends AppCompatActivity {
-    TextView format=null;
-    TextView contents=null;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Scanner;
+
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<HashMap<String, String>> {
+    private static final String TAG = "MainActivity";
+    private static final int LOADER = 1;
+    private TextView format = null;
+    private TextView contents = null;
+    private TextView iceCreamName = null;
+    public HashMap<String, String> mapIceCream = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        format=(TextView)findViewById(R.id.format);
-        contents=(TextView)findViewById(R.id.contents);
+        format = (TextView) findViewById(R.id.format);
+        contents = (TextView) findViewById(R.id.contents);
+        iceCreamName = (TextView) findViewById(R.id.iceCreamName);
+
+        // Initialize LoadManager
+        getLoaderManager().initLoader(LOADER, null, this);
     }
 
     @Override
@@ -50,12 +69,15 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle state) {
         state.putString("format", format.getText().toString());
         state.putString("contents", contents.getText().toString());
+        state.putString("iceCreamName", iceCreamName.getText().toString());
+
     }
 
     @Override
     public void onRestoreInstanceState(Bundle state) {
         format.setText(state.getString("format"));
         contents.setText(state.getString("contents"));
+        iceCreamName.setText(state.getString("iceCreamName"));
     }
 
     public void doScan(View v) {
@@ -63,13 +85,46 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onActivityResult(int request, int result, Intent i) {
-        IntentResult scan=IntentIntegrator.parseActivityResult(request,
+        IntentResult scan = IntentIntegrator.parseActivityResult(request,
                 result,
                 i);
 
-        if (scan!=null) {
+        if (scan != null) {
             format.setText(scan.getFormatName());
-            contents.setText(scan.getContents());
+            String code = scan.getContents();
+            contents.setText(code);
+            String name = mapIceCream.get(code);
+            if (!name.isEmpty()) {
+                iceCreamName.setText(name);
+                //Toast.makeText(this.getBaseContext(), name, Toast.LENGTH_LONG).show();
+            } else {
+                iceCreamName.setText(R.string.no_data);
+            }
+
         }
+    }
+
+    @Override
+    public Loader<HashMap<String, String>> onCreateLoader(int id, Bundle args) {
+        Log.d(TAG, "onCreateLoader start");
+        Loader loader = null;
+        switch (id) {
+            case LOADER:
+                Log.d(TAG, "Create LOADER_CASH");
+                loader = new IceCreamLoader(this);
+                break;
+        }
+        return loader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<HashMap<String, String>> loader, HashMap<String, String> data) {
+        mapIceCream = data;
+    }
+
+    @Override
+    public void onLoaderReset(Loader<HashMap<String, String>> loader) {
+        Log.d(TAG, "onLoaderReset start");
+        //mapIceCream = null;
     }
 }
