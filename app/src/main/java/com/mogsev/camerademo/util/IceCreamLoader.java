@@ -4,8 +4,6 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.util.Log;
 
-import com.mogsev.camerademo.IceCream;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -17,6 +15,7 @@ import java.util.Scanner;
  */
 public class IceCreamLoader extends AsyncTaskLoader<HashMap<String, String>> {
     private static final String TAG = "IceCreamLoader";
+    private static final String URL_ITEM = "http://mail.rud.ua/mail/item.txt";
     private HashMap<String, String> map;
 
     public IceCreamLoader(Context context) {
@@ -53,7 +52,7 @@ public class IceCreamLoader extends AsyncTaskLoader<HashMap<String, String>> {
         map = new HashMap<>();
 
         try {
-            URL url = new URL("http://proxy.rud.ua/item.txt");
+            URL url = new URL(URL_ITEM);
             //BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
             Scanner scanner = new Scanner(url.openStream());
             //Log.d(TAG, in.readLine());

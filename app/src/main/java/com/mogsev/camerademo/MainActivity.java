@@ -10,17 +10,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.mogsev.camerademo.util.IceCreamLoader;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
-import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<HashMap<String, String>> {
     private static final String TAG = "MainActivity";
@@ -29,6 +24,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private TextView contents = null;
     private TextView iceCreamName = null;
     public HashMap<String, String> mapIceCream = new HashMap<>();
+    private String code;
+    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,16 +88,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         if (scan != null) {
             format.setText(scan.getFormatName());
-            String code = scan.getContents();
+            code = scan.getContents();
             contents.setText(code);
-            String name = mapIceCream.get(code);
-            if (!name.isEmpty()) {
+            if (mapIceCream.containsKey(code)) {
+                name = mapIceCream.get(code);
                 iceCreamName.setText(name);
                 //Toast.makeText(this.getBaseContext(), name, Toast.LENGTH_LONG).show();
             } else {
                 iceCreamName.setText(R.string.no_data);
             }
-
         }
     }
 
